@@ -25,6 +25,8 @@ export const MOCK_SERVER = Config.MOCK_SERVER === 'true' || false;
 
 export const REGION_JSON_URL = Config.REGION_JSON_URL;
 
+export const LOGGLY_URL = Config.LOGGLY_URL || false;
+
 /**
  * Set reachability check url to empty to prevent
  * unnecessary background network activity
