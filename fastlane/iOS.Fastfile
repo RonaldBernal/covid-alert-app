@@ -164,4 +164,50 @@ platform :ios do
       comment: "v#{ENV['APP_VERSION_NAME']} (#{ENV['APP_VERSION_CODE']})"
     )
   end
+
+  desc "DEBUG Adhoc build, upload to Diawi"
+  lane :debug_adhoc do
+    prepare_local
+
+    output_directory = File.expand_path('../build/ios')
+
+    # Register devices
+    if devices_file_exists
+      UI.success("Registering devices!")
+      register_devices(
+        devices_file: './fastlane/devices.txt',
+        team_id: ENV['TEAM_ID'],
+        username: ENV['APPLE_ID']
+      )
+    end
+
+    get_provisioning_profile(
+      adhoc: true,
+      force: true,
+      app_identifier: ENV["APP_ID_IOS"],
+      provisioning_name: ENV["PROFILE_ADHOC"],
+      template_name: 'Exposure Notification for TEAMID (Distribution) iOS Dist ADHOC',
+      output_path: './fastlane/certs/ios/',
+      filename: "CovidShield_AdHoc.mobileprovision"
+    )
+
+    build_app(
+      scheme: "CovidShield",
+      workspace: "./ios/CovidShield.xcworkspace",
+      export_method: "ad-hoc",
+      output_directory: output_directory,
+      export_options: {
+        provisioningProfiles: {
+          ENV["APP_ID_IOS"] => ENV["PROFILE_ADHOC"]
+        }
+      }
+    )
+
+    diawi(
+      token: ENV['DIAWI_TOKEN'],
+      file: lane_context[SharedValues::IPA_OUTPUT_PATH],
+      find_by_udid: true,
+      comment: "v#{ENV['APP_VERSION_NAME']} (#{ENV['APP_VERSION_CODE']})"
+    )
+  end
 end
