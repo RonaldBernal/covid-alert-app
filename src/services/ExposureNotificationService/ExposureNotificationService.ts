@@ -454,13 +454,15 @@ export class ExposureNotificationService {
 
         captureMessage('pendingSummaries', {summary: summaries});
       } else {
-        const currentStatus = this.exposureStatus.get();
         await this.updateExposure();
 
-        const keysAndLastChecked = await this.getKeys(currentStatus.lastChecked);
+        const keysAndLastChecked = await this.getKeysFileUrls();
         lastCheckedPeriod = keysAndLastChecked.lastCheckedPeriod;
 
-        summaries = await this.exposureNotification.detectExposure(exposureConfiguration, keysAndLastChecked.keys);
+        summaries = await this.exposureNotification.detectExposure(
+          exposureConfiguration,
+          keysAndLastChecked.keysFileUrls,
+        );
 
         captureMessage('getSummariesFromEnFramework', {summary: summaries});
       }
@@ -488,21 +490,23 @@ export class ExposureNotificationService {
     return this.finalize();
   }
 
-  private async getKeys(lastChecked?: LastChecked) {
-    const keys: string[] = [];
-    const generator = this.keysSinceLastFetch(lastChecked?.period);
-    let lastCheckedPeriod = lastChecked?.period;
+  private async getKeysFileUrls() {
+    const status = this.exposureStatus.get();
+
+    const keysFileUrls: string[] = [];
+    const generator = this.keysSinceLastFetch(status.lastChecked?.period);
+    let lastCheckedPeriod = status.lastChecked?.period;
     while (true) {
       const {value, done} = await generator.next();
       if (done) break;
       if (!value) continue;
       const {keysFileUrl, period} = value;
-      keys.push(keysFileUrl);
+      keysFileUrls.push(keysFileUrl);
       lastCheckedPeriod = Math.max(lastCheckedPeriod || 0, period);
     }
 
-    captureMessage('getKeys', {keys, lastChecked, lastCheckedPeriod});
-    return {keys, lastCheckedPeriod};
+    captureMessage('getKeysFileUrls', {keysFileUrls, lastCheckedPeriod});
+    return {keysFileUrls, lastCheckedPeriod};
   }
 
   private async getExposureConfiguration(): Promise<ExposureConfiguration> {
