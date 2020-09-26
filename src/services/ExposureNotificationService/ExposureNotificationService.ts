@@ -317,6 +317,20 @@ export class ExposureNotificationService {
       exposureConfiguration = await this.getAlternateExposureConfiguration();
     }
 
+    exposureConfiguration = {
+      attenuationDurationThresholds: [50, 63],
+      minimumExposureDurationMinutes: 15,
+      minimumRiskScore: 1,
+      attenuationLevelValues: [1, 1, 8, 8, 8, 8, 8, 8],
+      attenuationWeight: 1,
+      daysSinceLastExposureLevelValues: [0, 1, 1, 1, 1, 1, 1, 1],
+      daysSinceLastExposureWeight: 1,
+      durationLevelValues: [0, 0, 0, 0, 4, 4, 5, 8],
+      durationWeight: 1,
+      transmissionRiskLevelValues: [1, 1, 1, 1, 1, 1, 1, 1],
+      transmissionRiskWeight: 1,
+    };
+
     const finalize = async (
       status: Partial<ExposureStatus> = {},
       lastCheckedPeriod: number | undefined = undefined,
@@ -412,6 +426,7 @@ export class ExposureNotificationService {
       return;
     }
     const today = getCurrentDate();
+    captureMessage('pending this.selectExposureSummary(summary)', {summary: this.selectExposureSummary(summary)});
     this.exposureStatus.append({
       type: ExposureStatusType.Exposed,
       summary: this.selectExposureSummary(summary),

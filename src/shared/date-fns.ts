@@ -46,7 +46,8 @@ export function daysBetweenUTC(date1: Date, date2: Date): number {
 }
 
 export function getCurrentDate(): Date {
-  return new Date();
+  return new Date(2020, 8, 27);
+  // return new Date();
 }
 
 export function getMillisSinceUTCEpoch() {
