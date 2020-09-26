@@ -93,7 +93,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
-  
+
   if([[UIApplication sharedApplication] applicationState] != UIApplicationStateBackground) {
     UIStoryboard *launchScreenStoryboard = [UIStoryboard storyboardWithName:@"Launch Screen" bundle:nil];
     UIViewController *launchScreenController = [launchScreenStoryboard instantiateInitialViewController];
@@ -122,7 +122,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
 {
 #if DEBUG
-  return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
+  return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #else
   return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #endif
@@ -138,7 +138,7 @@ static BOOL preSubmitTaskHook(id me, SEL selector, BGTaskRequest *req, NSError *
     ((BGProcessingTaskRequest*)req).requiresNetworkConnectivity = YES;
     ((BGProcessingTaskRequest*)req).requiresExternalPower = NO;
   }
-  
+
   return ((BOOL (*)(id, SEL, BGTaskRequest*, NSError**))*_BGTaskScheduler_submitTaskRequest_orig)(me, selector, req, perr);
 }
 
@@ -150,4 +150,3 @@ static void patchBGTaskSubmission() {
 
   _BGTaskScheduler_submitTaskRequest_orig = class_replaceMethod(schedulerClass, submitSelector, (IMP)preSubmitTaskHook, "B@:@@");
 }
-
